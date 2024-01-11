@@ -9,7 +9,7 @@ const producer = new kafka.Producer(user);
 let isProducerReady = false;
 
 producer.on('ready', () => {
-    console.log('Kafka Producer actuate rgb is ready');
+    console.log('Kafka Producer for sending temp is ready');
     isProducerReady = true;
 });
 
@@ -17,13 +17,13 @@ producer.on('error', (error) => {
     console.error('Error connecting to Kafka:', error);
 });
 
-export default async function startProducerRGB(message) {
-    console.log("Producer actuate_rgb is started");
+export default async function startProducerSendTemp(message) {
+    console.log("Producer send_temp is started");
 
     return new Promise((resolve, reject) => {
         const sendPayload = () => {
             const payload = [{
-                topic: 'rgb',
+                topic: 'temp',
                 messages: message.toString()
             }];
 
@@ -32,7 +32,7 @@ export default async function startProducerRGB(message) {
                     console.error('Error in publishing message:', error);
                     reject(error);
                 } else {
-                    console.log('Message successfully published for turning on rgb:', data);
+                    console.log('Message successfully published for sending temp:', data);
                     resolve();
                 }
             });
@@ -42,7 +42,7 @@ export default async function startProducerRGB(message) {
             sendPayload();
         } else {
             producer.on('ready', () => {
-                console.log('Kafka Producer actuate_rgb is ready');
+                console.log('Kafka Producer send_temp is ready');
                 isProducerReady = true;
                 sendPayload();
             });

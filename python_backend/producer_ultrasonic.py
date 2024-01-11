@@ -30,7 +30,7 @@ def start_producer():
     admin_client.delete_topics([topic])
     admin_client.create_topics([new_topic])
 
-    for i in range(5):
+    for _ in range(10):
         # every two seconds we send the number of cars between the two ultrasonic sensors
         time.sleep(2)
         message_value = str(random.randint(0,4))

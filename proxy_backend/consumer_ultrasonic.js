@@ -10,12 +10,13 @@ const consumer = new kafka.Consumer(
   { autoCommit: false } 
 );
 
-export default function startConsumerUltrasonic(onMessageReceived) {
+export default function startConsumerUltrasonic(onMessageReceived, saveMessageReceived) {
   console.log("Consumer_ultrasonic is started");
 
   consumer.on('message', (message) => {
     console.log('Received message from producer_ultrasonic: ', message.value)
     onMessageReceived(message.value)
+    saveMessageReceived(message.value)
   });
   
   consumer.on('error', (error) => {

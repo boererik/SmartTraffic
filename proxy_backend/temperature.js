@@ -1,6 +1,6 @@
 import got from "got";
 
-async function getTemperatureFromOW() {
+export async function getTemperatureFromOW() {
     try {
         const myKey = "fc90365f8471c97e12b4f30d70258384";
         const city = "Athens,GR";
@@ -20,4 +20,12 @@ async function getTemperatureFromOW() {
     }
 }
 
-export default getTemperatureFromOW();
+
+
+export function handleTemperatureFromOW(temperature) {
+    if (temperature < 0) {
+        return 1 //led will be blue
+    } else {
+        return 0 //led will be turned off
+    }
+}
