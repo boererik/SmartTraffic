@@ -4,6 +4,7 @@ import { getTemperatureFromOW, handleTemperatureFromOW } from './temperature.js'
 import startProducerSendTemp from './producer_send_temp.js';
 import { promises as fsPromises } from 'fs';
 
+
 async function saveToCSV(numberOfCars) {
     // Get the current time
     const currentTime = new Date();
@@ -24,7 +25,7 @@ async function saveToCSV(numberOfCars) {
         console.error("Error while saving to CSV:", error);
     }
 }
-
+// ez nem kell mert nem kuldunk vissza semmit 
 async function handleReceivedMessage(numberOfCars) {
     console.log("Return value numberOfCars:", numberOfCars);
 
@@ -64,22 +65,27 @@ async function flashLeds() {
 }
 
 async function main() {
-    startConsumerUltrasonic(handleReceivedMessage, saveToCSV);
+    startConsumerUltrasonic(saveToCSV);
 
     //producer turns on/off the blue led according to temperature
-    // try {
-    //     await startProducerSendTemp(handleTemperatureFromOW(getTemperatureFromOW()));
-    //     console.log("Message sent to Kafka topic 'temp'");
-    // } catch (error) {
-    //     console.error("Error while sending message:", error);
-    // }\
+    while(1){
+        setTimeout(function() {
+            console.log("End");
+        }, 200);
+        try {
+            //await startProducerSendTemp(handleTemperatureFromOW(getTemperatureFromOW()));
+            await startProducerSendTemp('1');
+            console.log("Message sent to Kafka topic 'temp'");
+        } catch (error) {
+            console.error("Error while sending message:", error);
+        }
+    }
+
     // try {
     //     await flashLeds()
     // } catch (error) {
     //     console.error("Error while sending message:", error);
     // }
-    
-
 }
 
 main();
