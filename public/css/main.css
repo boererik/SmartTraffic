@@ -1,0 +1,134 @@
+body {
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+.page {
+    display: flex;
+    flex-direction: row;
+}
+.pageLeft {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    flex: 1;
+}
+.pageRight {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    flex: 1; 
+}
+
+.title{
+    text-align: center;
+}
+
+.header {
+    align-items: center;
+    top: 20px;
+    height: 100px;
+    width: 100%;
+}
+
+.hexagon {
+    position: relative;
+    width: 100px;
+    height: 58px;
+    background-color: #ff0000; /* Red background color */
+    margin: 29px 0;
+}
+
+.hexagon:before,
+.hexagon:after {
+    content: "";
+    position: absolute;
+    width: 0;
+    border-left: 50px solid transparent;
+    border-right: 50px solid transparent;
+}
+
+.hexagon:before {
+    top: -29px;
+    border-bottom: 29px solid #ff0000; /* Red triangle top */
+}
+
+.hexagon:after {
+    bottom: -29px;
+    border-top: 29px solid #ff0000; /* Red triangle bottom */
+}
+
+.hexagon-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffffff; /* White text color */
+    font-size: 18px;
+    cursor: pointer;
+}
+.trafficEstimated {
+    padding-bottom: 50px;
+}
+
+.low { 
+    color: green;
+}
+
+.medium { 
+    color: orange; 
+}
+
+.high { 
+    color: red; 
+}  
+ 
+input[type="checkbox"] {
+position: relative;
+padding-bottom: 30px;
+width: 60px;
+height: 30px;
+-webkit-appearance: none;
+appearance: none;
+background: whitesmoke;
+outline: none;
+border-radius: 2rem;
+cursor: pointer;
+box-shadow: inset 0 0 5px rgb(0 0 0 / 50%);
+}
+
+input[type="checkbox"]::before {
+content: "";
+width: 30px;
+height: 30px;
+border-radius: 50%;
+background: #fff;
+position: absolute;
+top: 0;
+left: 0;
+transition: 0.5s;
+}
+
+input[type="checkbox"]:checked::before {
+transform: translateX(100%);
+background: #fff;
+}
+
+input[type="checkbox"]:checked {
+background: #a4e8eb;
+}
+
+tr {
+    text-align: center;
+}
+
+td, th {
+    border: 1px solid grey;
+}
+
+.plot {
+    width: 400px;
+    height: 300px;
+}

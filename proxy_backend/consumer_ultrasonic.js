@@ -1,7 +1,7 @@
 import kafka from 'kafka-node';
 
 const user = new kafka.KafkaClient({
-  kafkaHost: '192.168.0.171:9092'
+  kafkaHost: 'localhost:9092'
 });
 
 const consumer = new kafka.Consumer(
@@ -15,8 +15,8 @@ export default function startConsumerUltrasonic(saveMessageReceived) {
 
   consumer.on('message', (message) => {
     console.log('Received message from producer_ultrasonic: ', message.value)
-    //onMessageReceived(message.value)
     saveMessageReceived(message.value)
+    return message.value;
   });
   
   consumer.on('error', (error) => {

@@ -1,94 +1,25 @@
-import startProducerRGB from './producer_actuate_rgb.js';
-import startConsumerUltrasonic from './consumer_ultrasonic.js';
-import { getTemperatureFromOW, handleTemperatureFromOW } from './temperature.js'
-import startProducerSendTemp from './producer_send_temp.js';
-import { promises as fsPromises } from 'fs';
+import express from 'express';
+import bodyParser from 'body-parser';
+import path from 'path';
+import router from './server/routes.js';
 
+const __filename = new URL(import.meta.url).pathname;
+const __dirname = path.resolve(path.dirname(__filename), '..'); // Set to parent directory
 
-async function saveToCSV(numberOfCars) {
-    // Get the current time
-    const currentTime = new Date();
-    const currentHour = currentTime.getHours();
+const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-    // Prepare the data for CSV
-    const csvData = `${numberOfCars},${currentHour}\n`;
+const port = process.env.PORT || 8080;
 
-    // Specify the file path
-    const filePath = 'output.csv';
+app.get('/', function(req, res) {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
-    try {
-        // Append data to the CSV file
-        await fsPromises.appendFile(filePath, csvData);
+app.use("/", router);
+app.use(express.static(path.join(__dirname, 'public')));
 
-        console.log(`Data saved to ${filePath}: ${numberOfCars}, ${currentHour}`);
-    } catch (error) {
-        console.error("Error while saving to CSV:", error);
-    }
-}
-// ez nem kell mert nem kuldunk vissza semmit 
-async function handleReceivedMessage(numberOfCars) {
-    console.log("Return value numberOfCars:", numberOfCars);
-
-    let number = 0
-    if (numberOfCars <= 1) {
-        number = 1
-    } else {
-        if (numberOfCars > 1 && numberOfCars < 3) {
-            number = 2
-        } else {
-            number = 3
-        }
-    }
-    
-    try {
-        await startProducerRGB(number);
-        console.log("Message sent to Kafka topic 'rgb'");
-    } catch (error) {
-        console.error("Error while sending message:", error);
-    }
-}
-
-const flashMessage = -1
-
-//call this when sos button is pushed
-async function flashLeds() {
-    
-    try {
-        await Promise.all([
-            startProducerRGB(flashMessage),
-            startProducerSendTemp(flashMessage)
-        ]);
-        console.log("Message sent to Kafka topic 'rgb and temp'");
-    } catch (error) {
-        console.error("Error while sending message:", error);
-    }
-}
-
-async function main() {
-    startConsumerUltrasonic(saveToCSV);
-
-    //producer turns on/off the blue led according to temperature
-    while(1){
-        setTimeout(function() {
-            console.log("End");
-        }, 200);
-        try {
-            //await startProducerSendTemp(handleTemperatureFromOW(getTemperatureFromOW()));
-            await startProducerSendTemp('1');
-            console.log("Message sent to Kafka topic 'temp'");
-        } catch (error) {
-            console.error("Error while sending message:", error);
-        }
-    }
-
-    // try {
-    //     await flashLeds()
-    // } catch (error) {
-    //     console.error("Error while sending message:", error);
-    // }
-}
-
-main();
-
-
-
+// START THE SERVER
+app.listen(port);
+console.log('Magic happens on port ' + port);
