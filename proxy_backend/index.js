@@ -2,9 +2,12 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import path from 'path';
 import router from './server/routes.js';
+import { startConsumerUltrasonicCall } from './utils/startConsumerUltrasonic.js';
+import './backgroundService.js'; // Import and run the background service
 
-const __filename = new URL(import.meta.url).pathname;
-const __dirname = path.resolve(path.dirname(__filename), '..'); // Set to parent directory
+const __filename = 'C:/Users/Erik Boer/Documents/Egyetem/MESTERIX/git_iot/iot';
+const __dirname = 'C:/Users/Erik Boer/Documents/Egyetem/MESTERIX/git_iot/iot';
+
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -13,13 +16,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const port = process.env.PORT || 8080;
 
-app.get('/', function(req, res) {
+
+
+app.get('/', async function(req, res) {
+    startConsumerUltrasonicCall();
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.use("/", router);
 app.use(express.static(path.join(__dirname, 'public')));
 
-// START THE SERVER
+
 app.listen(port);
 console.log('Magic happens on port ' + port);

@@ -1,7 +1,7 @@
 import kafka from 'kafka-node';
 
 const user = new kafka.KafkaClient({
-  kafkaHost: 'localhost:9092'
+  kafkaHost: '192.168.219.97:9092'
 });
 
 const consumer = new kafka.Consumer(
@@ -10,13 +10,16 @@ const consumer = new kafka.Consumer(
   { autoCommit: false } 
 );
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export default function startConsumerUltrasonic(saveMessageReceived) {
   console.log("Consumer_ultrasonic is started");
-
   consumer.on('message', (message) => {
-    console.log('Received message from producer_ultrasonic: ', message.value)
-    saveMessageReceived(message.value)
-    return message.value;
+
+    console.log('Received message from the ultrasonic sensors: ', message.value)
+    saveMessageReceived(message.value);
   });
   
   consumer.on('error', (error) => {

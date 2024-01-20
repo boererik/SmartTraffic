@@ -1,7 +1,7 @@
 import kafka from 'kafka-node';
 
 const user = new kafka.KafkaClient({
-    kafkaHost: '192.168.0.171:9092'
+    kafkaHost: '192.168.219.97:9092'
 });
 
 const producer = new kafka.Producer(user);

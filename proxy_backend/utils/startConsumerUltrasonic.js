@@ -1,25 +1,22 @@
-import startProducerRGB from '../producer_actuate_rgb.js';
 import startConsumerUltrasonic from '../consumer_ultrasonic.js';
 import { getTemperatureFromOW, handleTemperatureFromOW } from './temperature.js'
 import startProducerSendTemp from '../producer_send_temp.js';
 import { promises as fsPromises } from 'fs';
 
+var carNum = 0;
+
 async function saveToCSV(numberOfCars) {
-    // Get the current time
+    carNum = numberOfCars;
+
     const currentTime = new Date();
     const currentHour = currentTime.getHours();
-
-    // Prepare the data for CSV
-    const csvData = `${numberOfCars},${currentHour}\n`;
-
-    // Specify the file path
-    const filePath = '../data/output.csv';
+    const csvData = `${currentHour},${numberOfCars}\n`;
+    const filePath = './output.csv';
 
     try {
-        // Append data to the CSV file
         await fsPromises.appendFile(filePath, csvData);
 
-        console.log(`Data saved to ${filePath}: ${numberOfCars}, ${currentHour}`);
+        console.log(`Data saved to ${filePath}: ${currentHour}, ${numberOfCars}`);
     } catch (error) {
         console.error("Error while saving to CSV:", error);
     }
@@ -31,7 +28,6 @@ const flashMessage = -1
 async function flashLeds() {
     try {
         await Promise.all([
-            startProducerRGB(flashMessage),
             startProducerSendTemp(flashMessage)
         ]);
         console.log("Message sent to Kafka topic 'rgb and temp'");
@@ -40,10 +36,27 @@ async function flashLeds() {
     }
 }
 
-async function startConsumerUltrasonicCall() {
-    const carNum = startConsumerUltrasonic(saveToCSV);
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+} 
 
-    return carNum;
+async function startConsumerUltrasonicCall() {
+    console.log('belep')
+    startConsumerUltrasonic(saveToCSV);
+
+    await sleep(5000)
+    while(1){
+        try {
+            //await startProducerSendTemp(handleTemperatureFromOW(getTemperatureFromOW()));
+            const randomNumber = Math.round(Math.random());
+            await startProducerSendTemp('1');
+            console.log("Message sent to Kafka topic 'temp'");
+        } catch (error) {
+            console.error("Error while sending message:", error);
+        }
+        await sleep(5000);
+    }
+
     //producer turns on/off the blue led according to temperature
     // try {
     //     await startProducerSendTemp(handleTemperatureFromOW(getTemperatureFromOW()));
@@ -58,7 +71,7 @@ async function startConsumerUltrasonicCall() {
     // }
 }
 
-export { startConsumerUltrasonicCall, flashLeds };
+export { startConsumerUltrasonicCall, flashLeds, carNum };
 
 
 

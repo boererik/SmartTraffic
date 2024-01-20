@@ -1,21 +1,20 @@
-var scatterDataPoints; // Declare scatterDataPoints outside the initializePage function
+var scatterDataPoints; 
 
 var scatterData = {
     datasets: [
         {
-            label: "Traffic Data (car nr/hour)",
-            data: [],  // This will be populated later
+            label: "Traffic Data (vehicle nr/hour)",
+            data: [], 
             backgroundColor: "rgba(75, 192, 192, 0.6)",
             pointRadius: 8,
         },
     ],
 };
 
-document.getElementById('hexagon').addEventListener('click', function() {
+document.getElementById('hexagon').addEventListener('click',async function() {
     alert('Led activated!');
 
-    // Send a request to the server when the button is clicked
-    fetch('/toggleLED', { method: 'POST' })
+    await fetch('/toggleLED', { method: 'POST' })
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -23,7 +22,7 @@ document.getElementById('hexagon').addEventListener('click', function() {
             return response.text();
         })
         .then(data => {
-            console.log(data); // Log the response from the server
+            console.log(data); 
         })
         .catch(error => {
             console.error('There was a problem with the fetch operation:', error);
@@ -37,24 +36,45 @@ async function fetchDatasheetContent() {
             throw new Error('Network response was not ok');
         }
         const csvData = await response.text();
-        // Parse CSV data (you may use a CSV parsing library or implement your own logic)
-        // For simplicity, splitting by line and then by comma is shown here
+ 
         const rows = csvData.split('\n');
         const datasheetContent = rows.map(row => {
             const columns = row.split(',');
             return {
                 x: parseFloat(columns[0]), 
                 y: parseFloat(columns[1]),
-                z: parseFloat(columns[2]),
-                w: parseFloat(columns[3]),
             };
         });
-        return datasheetContent;
+
+        // Exclude the last row
+        const filteredData = datasheetContent.slice(0, -1);
+
+        // Filter out rows where the second column is NaN
+        const validData = filteredData.filter(row => !isNaN(row.y));
+
+        // Calculate the sum and count for each unique number in the first column (x)
+        const aggregatedData = validData.reduce((result, { x, y }) => {
+            if (!result[x]) {
+                result[x] = { sum: 0, count: 0 };
+            }
+            result[x].sum += y;
+            result[x].count += 1;
+            return result;
+        }, {});
+
+        // Calculate the average for each unique number
+        const finalResult = Object.keys(aggregatedData).map(x => ({
+            x: parseFloat(x),
+            y: aggregatedData[x].sum / aggregatedData[x].count,
+        }));
+
+        return finalResult;
     } catch (error) {
         console.error('Error fetching datasheet content:', error);
         return [];
     }
 }
+
 
 async function fetchStaticTraffic(selectedHour) {
     try {
@@ -63,12 +83,10 @@ async function fetchStaticTraffic(selectedHour) {
             throw new Error('Network response was not ok');
         }
         const csvData = await response.text();
-        // Parse CSV data (you may use a CSV parsing library or implement your own logic)
-        // For simplicity, splitting by line and then by comma is shown here
+
         const rows = csvData.split('\n');
         const selectedRow = rows.find(row => {
             const columns = row.split(',');
-            // the first column represents hours (timestamps)
             return parseFloat(columns[0]) === selectedHour;
         });
 
@@ -78,7 +96,7 @@ async function fetchStaticTraffic(selectedHour) {
         }
 
         const columns = selectedRow.split(',');
-        const selectedValue = parseFloat(columns[1]); // second column holds the desired value
+        const selectedValue = parseFloat(columns[1]); 
 
         return selectedValue;
     } catch (error) {
@@ -91,16 +109,11 @@ async function fetchStaticTraffic(selectedHour) {
 document.addEventListener("DOMContentLoaded", function () {
     async function initializePage() {
         try {
-            // Fetch datasheet content from CSV file
             scatterDataPoints = await fetchDatasheetContent(); 
-
-            // Update scatterData with the fetched data
             scatterData.datasets[0].data = scatterDataPoints;
 
-            // Get the canvas element
             var ctx = document.getElementById("trafficChart").getContext("2d");
 
-            // Create a scatter plot
             var scatterChart = new Chart(ctx, {
                 type: "scatter",
                 data: scatterData,
@@ -119,10 +132,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             });
 
-            // Display datasheet content initially
             displayDatasheetContentInTable(scatterDataPoints);
 
-            // Populate the selectHours dropdown
             populateHoursDropdown();
 
         } catch (error) {
@@ -133,49 +144,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function displayDatasheetContentInTable(datasheetContent) {
         const tableElement = document.getElementById('datasheet');
-        tableElement.innerHTML = ''; // Clear previous content
+        tableElement.innerHTML = '';
 
         if (datasheetContent.length === 0) {
             tableElement.textContent = 'No datasheet content available.';
             return;
         }
 
-        // Create table header
         const headerRow = document.createElement('tr');
         const xHeader = document.createElement('th');
         const yHeader = document.createElement('th');
-        const zHeader = document.createElement('th');
-        const wHeader = document.createElement('th');
+
 
         xHeader.textContent = 'Timestamp';
         yHeader.textContent = 'Nr. of vehicles';
-        zHeader.textContent = 'Nr. of cars';
-        wHeader.textContent = 'Nr. of trucks';
+
 
         headerRow.appendChild(xHeader);
         headerRow.appendChild(yHeader);
-        headerRow.appendChild(zHeader);
-        headerRow.appendChild(wHeader);
+
 
         tableElement.appendChild(headerRow);
 
-        // Add rows to the table
         datasheetContent.forEach(row => {
             const rowElement = document.createElement('tr');
             const xCell = document.createElement('td');
             const yCell = document.createElement('td');
-            const zCell = document.createElement('td');
-            const wCell = document.createElement('td');
 
             xCell.textContent = row.x;
             yCell.textContent = row.y;
-            zCell.textContent = row.z;
-            wCell.textContent = row.w;
 
             rowElement.appendChild(xCell);
             rowElement.appendChild(yCell);
-            rowElement.appendChild(zCell);
-            rowElement.appendChild(wCell);
 
             tableElement.appendChild(rowElement);
         });
@@ -186,11 +186,10 @@ document.addEventListener("DOMContentLoaded", function () {
     
         // Create a default option
         const defaultOption = document.createElement('option');
-        defaultOption.value = ''; // Set the value to an empty string or any default value you prefer
-        defaultOption.textContent = 'Select an hour'; // Set the display text for the default option
+        defaultOption.value = ''; 
+        defaultOption.textContent = 'Select an hour'; 
         selectHours.appendChild(defaultOption);
     
-        // Populate the remaining options
         for (let i = 0; i < 24; i++) {
             let option = document.createElement('option');
             option.value = i;
@@ -211,7 +210,6 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             plot.style.display = 'none';
             datasheet.style.display = 'block';
-            // You can add logic here to populate and display datasheet content
             displayDatasheetContentInTable(scatterDataPoints);
         }
     }
@@ -219,15 +217,12 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('togglePlot').addEventListener('change', togglePlot);
 
     function updateTrafficLevelColor(level, selector) {
-        // Remove existing color classes
         var trafficLevelElement = document.getElementById(selector);
         trafficLevelElement.classList.remove('low', 'medium', 'high');
         
-        // Add the corresponding color class
         trafficLevelElement.classList.add(level);
     }
 
-    // Assuming you have a dropdown with id "selectHours" in your HTML
     const selectHours = document.getElementById('selectHours');
 
     selectHours.addEventListener('change', async function() {
@@ -264,10 +259,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw new Error('Network response was not ok');
             }
             const weatherData = await response.json();
-            return weatherData.message; // Assuming the weather data contains a "message" property
+            return weatherData.message; 
         } catch (error) {
             console.error('Error fetching weather data:', error);
-            return 'Error fetching weather'; // Provide a default message or handle the error accordingly
+            return 'Error fetching weather'; 
         }
     }
     async function updateWeather() {
@@ -286,10 +281,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw new Error('Network response was not ok');
             }
             const trafficData = await response.json();
-            return trafficData.message; // Assuming the traffic data contains a "message" property
+            return trafficData.message; 
         } catch (error) {
             console.error('Error fetching traffic data:', error);
-            return 'Error fetching traffic'; // Provide a default message or handle the error accordingly
+            return 'Error fetching traffic';
         }
     }
     
@@ -335,6 +330,7 @@ document.addEventListener("DOMContentLoaded", function () {
         
     }
 
-    // setInterval(updateWeather, 5000); 
+    setInterval(updateWeather, 60000)
+
     setInterval(updateCurrentTraffic, 5000); 
 });
