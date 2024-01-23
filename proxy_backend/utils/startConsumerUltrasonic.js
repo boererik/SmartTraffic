@@ -22,15 +22,13 @@ async function saveToCSV(numberOfCars) {
     }
 }
 
-const flashMessage = -1
+var flashMessage = -1;
+var sleepy = false;
 
-//call this when sos button is pushed
 async function flashLeds() {
     try {
-        await Promise.all([
-            startProducerSendTemp(flashMessage)
-        ]);
-        console.log("Message sent to Kafka topic 'rgb and temp'");
+        await startProducerSendTemp(flashMessage)
+        console.log("Message sent to Kafka topic 'temp' for blinking");
     } catch (error) {
         console.error("Error while sending message:", error);
     }
@@ -41,15 +39,14 @@ function sleep(ms) {
 } 
 
 async function startConsumerUltrasonicCall() {
-    console.log('belep')
     startConsumerUltrasonic(saveToCSV);
 
     await sleep(5000)
     while(1){
         try {
-            //await startProducerSendTemp(handleTemperatureFromOW(getTemperatureFromOW()));
-            const randomNumber = Math.round(Math.random());
-            await startProducerSendTemp('1');
+            await startProducerSendTemp(handleTemperatureFromOW(await getTemperatureFromOW()));
+            //const randomNumber = Math.round(Math.random());
+            //await startProducerSendTemp('0');
             console.log("Message sent to Kafka topic 'temp'");
         } catch (error) {
             console.error("Error while sending message:", error);
@@ -57,18 +54,6 @@ async function startConsumerUltrasonicCall() {
         await sleep(5000);
     }
 
-    //producer turns on/off the blue led according to temperature
-    // try {
-    //     await startProducerSendTemp(handleTemperatureFromOW(getTemperatureFromOW()));
-    //     console.log("Message sent to Kafka topic 'temp'");
-    // } catch (error) {
-    //     console.error("Error while sending message:", error);
-    // }\
-    // try {
-    //     await flashLeds()
-    // } catch (error) {
-    //     console.error("Error while sending message:", error);
-    // }
 }
 
 export { startConsumerUltrasonicCall, flashLeds, carNum };

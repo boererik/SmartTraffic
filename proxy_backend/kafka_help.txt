@@ -2,6 +2,10 @@
 
 .\bin\windows\kafka-server-start.bat .\config\server.properties
 
+./bin/zookeeper-server-start.sh ./config/zookeeper.properties
+
+./bin/kafka-server-start.sh ./config/server.properties
+
 Create a topic named test: you have to be in the windows folder to do this
 kafka-topics.bat --create --bootstrap-server localhost:9092 --topic test
 

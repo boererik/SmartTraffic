@@ -37,7 +37,7 @@ body {
     position: relative;
     width: 100px;
     height: 58px;
-    background-color: #ff0000; /* Red background color */
+    background-color: #ff0000;
     margin: 29px 0;
 }
 
@@ -52,12 +52,12 @@ body {
 
 .hexagon:before {
     top: -29px;
-    border-bottom: 29px solid #ff0000; /* Red triangle top */
+    border-bottom: 29px solid #ff0000;
 }
 
 .hexagon:after {
     bottom: -29px;
-    border-top: 29px solid #ff0000; /* Red triangle bottom */
+    border-top: 29px solid #ff0000;
 }
 
 .hexagon-content {
@@ -65,7 +65,7 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #ffffff; /* White text color */
+    color: #ffffff; 
     font-size: 18px;
     cursor: pointer;
 }

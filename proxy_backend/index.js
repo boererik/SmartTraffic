@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import path from 'path';
 import router from './server/routes.js';
 import { startConsumerUltrasonicCall } from './utils/startConsumerUltrasonic.js';
-import './backgroundService.js'; // Import and run the background service
+import './backgroundService.js';
 
 const __filename = 'C:/Users/Erik Boer/Documents/Egyetem/MESTERIX/git_iot/iot';
 const __dirname = 'C:/Users/Erik Boer/Documents/Egyetem/MESTERIX/git_iot/iot';

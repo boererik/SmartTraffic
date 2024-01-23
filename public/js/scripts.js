@@ -46,13 +46,9 @@ async function fetchDatasheetContent() {
             };
         });
 
-        // Exclude the last row
         const filteredData = datasheetContent.slice(0, -1);
-
-        // Filter out rows where the second column is NaN
         const validData = filteredData.filter(row => !isNaN(row.y));
 
-        // Calculate the sum and count for each unique number in the first column (x)
         const aggregatedData = validData.reduce((result, { x, y }) => {
             if (!result[x]) {
                 result[x] = { sum: 0, count: 0 };
@@ -62,7 +58,6 @@ async function fetchDatasheetContent() {
             return result;
         }, {});
 
-        // Calculate the average for each unique number
         const finalResult = Object.keys(aggregatedData).map(x => ({
             x: parseFloat(x),
             y: aggregatedData[x].sum / aggregatedData[x].count,
@@ -78,32 +73,26 @@ async function fetchDatasheetContent() {
 
 async function fetchStaticTraffic(selectedHour) {
     try {
-        const response = await fetch('/staticCsvData');
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const csvData = await response.text();
-
-        const rows = csvData.split('\n');
-        const selectedRow = rows.find(row => {
-            const columns = row.split(',');
-            return parseFloat(columns[0]) === selectedHour;
+        const response = await fetchDatasheetContent();
+        const dataArray = response;
+        const selectedObject = dataArray.find(obj => {
+            return parseFloat(obj.x) === selectedHour;
         });
 
-        if (!selectedRow) {
+        if (!selectedObject) {
             console.log(`No data found for hour ${selectedHour}`);
             return null;
         }
 
-        const columns = selectedRow.split(',');
-        const selectedValue = parseFloat(columns[1]); 
+        const selectedValue = parseFloat(selectedObject.y);
 
         return selectedValue;
     } catch (error) {
         console.error('Error fetching datasheet content:', error);
-        return null; 
+        return null;
     }
 }
+
 
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -133,7 +122,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             displayDatasheetContentInTable(scatterDataPoints);
-
             populateHoursDropdown();
 
         } catch (error) {
@@ -183,9 +171,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function populateHoursDropdown() {
         const selectHours = document.getElementById('selectHours');
-    
-        // Create a default option
         const defaultOption = document.createElement('option');
+
         defaultOption.value = ''; 
         defaultOption.textContent = 'Select an hour'; 
         selectHours.appendChild(defaultOption);
@@ -227,9 +214,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
     selectHours.addEventListener('change', async function() {
         const selectedHour = parseFloat(selectHours.value);
-        const trafficSize = await fetchStaticTraffic(selectedHour);
-        var trafficLevel;
+        const numberOfCars = await fetchStaticTraffic(selectedHour);
+        
+        let trafficSize = 0
+        if (numberOfCars <= 1) {
+            trafficSize = 1
+        } else {
+            if (numberOfCars > 1 && numberOfCars < 4) {
+                trafficSize = 2
+            } else {
+                trafficSize = 3
+            }
+        }
 
+        var trafficLevel;
         switch (trafficSize) {
             case 1: {
                 updateTrafficLevelColor('low', 'trafficSize');
@@ -249,6 +247,7 @@ document.addEventListener("DOMContentLoaded", function () {
             default:
                 trafficLevel = "Unknown Traffic";
         }
+
         document.getElementById('trafficSize').textContent = trafficLevel;
     });
 
@@ -295,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (numberOfCars <= 1) {
                 trafficSize = 1
             } else {
-                if (numberOfCars > 1 && numberOfCars < 3) {
+                if (numberOfCars > 1 && numberOfCars < 4) {
                     trafficSize = 2
                 } else {
                     trafficSize = 3
