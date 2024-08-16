@@ -10,27 +10,15 @@ def delivery_report(err, msg):
         print('Message delivered to {} [{}]'.format(msg.topic(), msg.value()))
 
 def start_producer():
-    # Set your Kafka broker address
     broker_address = 'localhost:9092'
-
-    # Set your Kafka topic
     topic = 'carnumber'
-
-    # AdminClient instance; AdminClient will delete the topic if it already existst so we always start fresh
     admin_client = AdminClient({'bootstrap.servers': broker_address})
-
-    # Create Producer instance
     producer = Producer({'bootstrap.servers': broker_address})
-
-    
-    # Define topic configurations
     new_topic = NewTopic(topic, num_partitions=1, replication_factor=1)
-
-    # Delete the topic if it exists
     admin_client.delete_topics([topic])
     admin_client.create_topics([new_topic])
 
-    for _ in range(10):
+    while(True):
         # every two seconds we send the number of cars between the two ultrasonic sensors
         time.sleep(2)
         message_value = str(random.randint(0,4))

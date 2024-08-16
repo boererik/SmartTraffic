@@ -11,10 +11,7 @@ import random
 import time
 #-----  RASPBERRY   -----
 
-# Set pin numbering to GPIO.BOARD
 GPIO.setmode(GPIO.BOARD)
-
-# Define pins for the ultrasonic modules
 trig2 = 38
 echo2 = 40
 trig1 = 16
@@ -23,24 +20,22 @@ vehicleCount = 0
 startVehicles = []
 finishVehicles = []
 s_o_s = False
-# Set the trigger pin as OUTPUT and the echo as INPUT
+
 GPIO.setup(trig2, GPIO.OUT)
 GPIO.setup(echo2, GPIO.IN)
 GPIO.setup(trig1, GPIO.OUT)
 GPIO.setup(echo1, GPIO.IN)
-# Set up RGB LED
-# Define the pin numbers
+
 RED_PIN = 11
 GREEN_PIN = 13
 BLUE_PIN = 15
 ice_pin = 36
-# Set up the pins as output
+
 GPIO.setup(RED_PIN, GPIO.OUT)
 GPIO.setup(GREEN_PIN, GPIO.OUT)
 GPIO.setup(BLUE_PIN, GPIO.OUT)
-
 GPIO.setup(ice_pin, GPIO.OUT)
-# Function to set LED color
+
 def turn_blueled_off():
     GPIO.output(ice_pin, GPIO.LOW)
 def turn_blueled_on():
@@ -52,12 +47,10 @@ def turn_led_off():
     GPIO.output(BLUE_PIN, GPIO.LOW)
     time.sleep(0.8)
 def set_led_color(color):
-    # Turn off all colors initially
     GPIO.output(RED_PIN, GPIO.LOW)
     GPIO.output(GREEN_PIN, GPIO.LOW)
     GPIO.output(BLUE_PIN, GPIO.LOW)
 
-    # Set the color based on the input string
     if color.lower() == 'red':
         GPIO.output(RED_PIN, GPIO.HIGH)
     elif color.lower() == 'green':
@@ -242,18 +235,5 @@ def start_producer():
                 break
     producer.flush()
 
-# vehicles_start = listVehicles(startVehicles)
-# vehicles_finish = listVehicles(finishVehicles)
-# print('success')
-# for v in (vehicles_start):
-#     print(v)
-# print('Traffic size: ', len(vehicles_start))
-# for v in (vehicles_finish):
-#     print(v)
-# print('Traffic size: ', len(vehicles_finish))
-# print('whole array start: ', startVehicles)
-# print('whole array finish: ', finishVehicles)
-
 start_producer()
-# Use the same GPIO.cleanup() after all measurements are done
 GPIO.cleanup()
